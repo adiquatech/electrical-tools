@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum PointType {
+  LIGHT
+  SWITCH
+  SOCKET
+  AC
+  KITCHEN_COOKER
+  SECURITY_LIGHT
+}
+
+enum ConduitMode {
+  FULL
+  HALF
+}
+
+model Project {
+  id                  String      @id @default(cuid())
+  clientName          String
+  siteAddress         String?
+  safetyMarginPercent Float       @default(10)
+  conduitMode         ConduitMode @default(FULL)
+  specOverrides       Json?
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  rooms               Room[]
+}
+
+model Room {
+  id             String  @id @default(cuid())
+  name           String
+  distanceFromDB Float
+  project        Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId      String
+  points         Point[]
+}
+
+model Point {
+  id         String    @id @default(cuid())
+  type       PointType
+  subtype    String?
+  quantity   Int       @default(1)
+  dropLength Float     @default(0)
+  room       Room      @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  roomId     String
+}
