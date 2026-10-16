@@ -18,6 +18,7 @@ export type BOQProject = {
   rooms: {
     name: string;
     distanceFromDB: number;
+    active: boolean;
     points: {
       type: string;
       subtype: string | null;
@@ -65,6 +66,7 @@ export function calculateBOQ(project: BOQProject) {
   const margin = 1 + project.safetyMarginPercent / 100;
   const half = project.conduitMode === "HALF";
   const specs = resolveSpecs(project.specOverrides);
+  const rooms = project.rooms.filter((r) => r.active !== false);
 
   const runs: Run[] = [];
   const boxRaw = new Map<string, number>();
@@ -76,7 +78,7 @@ export function calculateBOQ(project: BOQProject) {
   // Half conduit: runs flagged "roof" are wired open, so they use no conduit
   const inConduit = (category: Category) => !(half && specs[category].roof);
 
-  for (const room of project.rooms) {
+  for (const room of rooms) {
     const countOf = (...types: string[]) =>
       room.points
         .filter((p) => types.includes(p.type))

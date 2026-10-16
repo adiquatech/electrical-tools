@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-const POINT_TYPES = ["LIGHT", "SWITCH", "SOCKET", "AC", "TV", "KITCHEN_COOKER", "SECURITY_LIGHT", "PUMP", "WATER_HEATER", "OTHER"];
+const POINT_TYPES = ["LIGHT", "SWITCH", "SOCKET", "AC", "TV", "KITCHEN_COOKER", "SECURITY_LIGHT", "PUMP", "WATER_HEATER", "WASHING_MACHINE", "OTHER"];
 const LIGHT_SUBTYPES = ["CENTER", "WALL_BRACKET", "POP"];
 
 export async function POST(

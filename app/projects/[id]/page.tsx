@@ -54,17 +54,24 @@ export default async function ProjectDetailPage({
         conduitMode={project.conduitMode}
         safetyMarginPercent={project.safetyMarginPercent}
         specs={specs}
+        extraBoxes={project.extraBoxes}
       />
 
       <h2 className="text-lg font-bold mb-4">Rooms</h2>
 
-      <div className="flex flex-col gap-4 mb-8">
-        {project.rooms.length === 0 ? (
-          <p style={{ color: "var(--muted)" }}>No rooms yet. Add the first one below.</p>
-        ) : (
-          project.rooms.map((room) => <RoomCard key={room.id} room={room} />)
-        )}
-      </div>
+      {project.rooms.length === 0 ? (
+        <p className="mb-8" style={{ color: "var(--muted)" }}>
+          No rooms yet. Add one below.
+        </p>
+      ) : (
+        <div className= "grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+          {project.rooms.map((room) => (
+            <RoomCard key={room.id} room={room} />
+          ))}
+        </div>
+      )}
+    
+      <h2 className="text-lg font-bold mb-4">Add a room</h2>
 
       <AddRoomForm projectId={project.id} />
     </div>

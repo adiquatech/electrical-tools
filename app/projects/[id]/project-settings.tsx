@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { CONDUIT_SIZES_MM, WIRE_SIZES_MM2 } from "@/lib/boq-config";
+import { CONDUIT_SIZES_MM, WIRE_SIZES_MM2, JUNCTION_BOX_TYPES, parseExtraBoxes, type ExtraBoxes } from "@/lib/boq-config";
 
 type SpecRow = { label: string; conduitMm: number; wireMm2: number };
 
@@ -16,22 +16,33 @@ export default function ProjectSettings({
   conduitMode: initialMode,
   safetyMarginPercent: initialMargin,
   specs: initialSpecs,
+  extraBoxes: initialExtraBoxes,
 }: {
   projectId: string;
   conduitMode: string;
   safetyMarginPercent: number;
   specs: Record<string, SpecRow>;
+  extraBoxes?: unknown;
 }) {
   const router = useRouter();
   const [conduitMode, setConduitMode] = useState(initialMode);
   const [margin, setMargin] = useState(String(initialMargin));
   const [specs, setSpecs] = useState(initialSpecs);
+  const [extraBoxes, setExtraBoxes] = useState<ExtraBoxes>(() => parseExtraBoxes(initialExtraBoxes));
   const [message, setMessage] = useState("");
 
   function updateSpec(key: string, field: "conduitMm" | "wireMm2", value: string) {
     setSpecs((prev) => ({
       ...prev,
       [key]: { ...prev[key], [field]: Number(value) },
+    }));
+  }
+
+  function setBoxCount(key: keyof ExtraBoxes, value: string) {
+    const n = Number(value);
+    setExtraBoxes((prev) => ({
+      ...prev,
+      [key]: Number.isFinite(n) && n >= 0 ? Math.floor(n) : 0,
     }));
   }
 
@@ -48,7 +59,7 @@ export default function ProjectSettings({
     const res = await fetch(`/api/projects/${projectId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ conduitMode, safetyMarginPercent: margin, specOverrides }),
+      body: JSON.stringify({ conduitMode, safetyMarginPercent: margin, specOverrides, extraBoxes }),
     });
 
     if (!res.ok) {
@@ -144,6 +155,34 @@ export default function ProjectSettings({
           </tbody>
         </table>
 
+        <div>
+          <p className="text-sm font-medium mb-1">Extra junction boxes</p>
+          <p className="text-xs mb-3" style={{ color: "var(--muted)" }}>
+            From the connection plan (U, Y, 2/3/4-way). Auto counts from points stay
+            separate on the BOQ.
+          </p>
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+            {JUNCTION_BOX_TYPES.map((key) => (
+              <label
+                key={key}
+                className="flex flex-col gap-1 text-xs"
+                style={{ color: "var(--muted)" }}
+              >
+                {key}
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={extraBoxes[key]}
+                  onChange={(e) => setBoxCount(key, e.target.value)}
+                  className="border rounded-lg px-2 py-1.5 text-sm"
+                  style={{ ...inputStyle, color: "var(--foreground)" }}
+                />
+              </label>
+            ))}
+          </div>
+        </div>
+
         {message && (
           <p className="text-sm" style={{ color: "var(--muted)" }}>
             {message}
@@ -155,6 +194,23 @@ export default function ProjectSettings({
           style={{ backgroundColor: "var(--accent)" }}
         >
           Save settings
+        </button>
+        <button
+          type="button"
+          onClick={async () => {
+            if (!confirm("Delete this entire project and all its rooms/points? This cannot be undone.")) {
+              return;
+            }
+            const res = await fetch(`/api/projects/${projectId}`, { method: "DELETE" });
+            if (res.ok) {
+              router.push("/projects");
+            } else {
+              setMessage("Could not delete the project.");
+            }
+          }}
+          className="self-start mt-2 text-sm text-red-400 hover:underline"
+        >
+          Delete project
         </button>
       </form>
     </details>

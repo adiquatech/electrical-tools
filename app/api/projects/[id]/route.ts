@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { CATEGORY_SPECS, CONDUIT_SIZES_MM, WIRE_SIZES_MM2 } from "@/lib/boq-config";
+import { CATEGORY_SPECS, CONDUIT_SIZES_MM, WIRE_SIZES_MM2, parseExtraBoxes } from "@/lib/boq-config";
 
 export async function PUT(
   request: Request,
@@ -20,6 +20,7 @@ export async function PUT(
       { status: 400 }
     );
   }
+  
 
   const specOverrides: Record<string, { conduitMm: number; wireMm2: number }> = {};
   for (const key of Object.keys(CATEGORY_SPECS)) {
@@ -32,14 +33,27 @@ export async function PUT(
     specOverrides[key] = { conduitMm, wireMm2 };
   }
 
+  const extraBoxes = parseExtraBoxes(body.extraBoxes);
+
+
   const project = await prisma.project.update({
     where: { id },
     data: {
       conduitMode: body.conduitMode,
       safetyMarginPercent: margin,
       specOverrides,
+      extraBoxes,
     },
   });
 
   return NextResponse.json(project);
+}
+
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  await prisma.project.deleteMany({ where: { id } });
+  return NextResponse.json({ message: "Project deleted" });
 }

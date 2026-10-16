@@ -1,15 +1,88 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0f1115;
-  --foreground: #e5e7eb;
-  --accent: #f59e0b;
-  --muted: #9ca3af;
-  --border: #27272a;
+  /* Surfaces */
+  --background: #f8f9fb;
+  --foreground: #1a1d23;
+  --card: #ffffff;
+  --card-hover: #f3f4f6;
+
+  /* Accent (icons, primary buttons, focus rings, outlines) */
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-muted: rgba(37, 99, 235, 0.12);
+
+  /* Text & borders */
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --border-strong: #d1d5db;
+
+  /* Semantic */
+  --danger: #dc2626;
+  --danger-hover: #b91c1c;
+  --success: #059669;
+
+  --radius: 0.75rem;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  min-height: 100vh;
+}
+
+/* Buttons */
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius);
+  transition: background 0.15s;
+}
+.btn-primary:hover {
+  background: var(--accent-hover);
+}
+
+.btn-ghost {
+  color: var(--muted);
+  padding: 0.35rem 0.6rem;
+  border-radius: 0.5rem;
+  transition: background 0.15s, color 0.15s;
+}
+.btn-ghost:hover {
+  background: var(--card-hover);
+  color: var(--foreground);
+}
+
+.btn-danger {
+  color: var(--danger);
+  transition: color 0.15s;
+}
+.btn-danger:hover {
+  color: var(--danger-hover);
+}
+
+/* Cards */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+/* Inputs */
+.input-field {
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--foreground);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  width: 100%;
+}
+.input-field:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-color: var(--accent);
 }
